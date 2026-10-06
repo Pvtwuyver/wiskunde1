@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rekenen met letters – oefenen en eindtoets (2 havo/vwo)</title>
+<style>
+:root{
+  --paper:#F6FAFE; --grid:#DCE8F4; --surface:#FFFFFF; --ink:#14213A; --muted:#55657D;
+  --pen:#1D4ED8; --pen-soft:#E8EFFF; --line:#C5D3E4;
+  --ok:#0F6B43; --ok-bg:#E4F4EB; --bad:#B42318; --bad-bg:#FDECEA; --warn-bg:#FFF4D6; --warn:#7A5300;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#0E1625; --grid:#1B2A41; --surface:#16213A; --ink:#E7EEF9; --muted:#9FB0C9;
+    --pen:#8FB5FF; --pen-soft:#1E2E52; --line:#2D3F5F;
+    --ok:#6FDCA6; --ok-bg:#123325; --bad:#FF9A90; --bad-bg:#3C1816; --warn-bg:#3A2D0B; --warn:#F3D27A;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; color:var(--ink); background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:1.0625rem; line-height:1.5;
+}
+main{max-width:46rem; margin:0 auto; padding:1.5rem 1rem 3rem}
+h1,h2,h3{line-height:1.2; margin:0}
+h1{font-size:2rem; letter-spacing:-.02em}
+h2{font-size:1.35rem; letter-spacing:-.01em}
+.sheet{background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:1.25rem 1.25rem 1.5rem; margin-top:1rem}
+.lede{color:var(--muted); margin:.4rem 0 0}
+button{font:inherit; color:inherit; cursor:pointer}
+:focus-visible{outline:3px solid var(--pen); outline-offset:2px}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+
+/* menu */
+.group-title{margin:1.75rem 0 .5rem; font-size:1.1rem}
+.rows{list-style:none; margin:0; padding:0; background:var(--surface); border:1px solid var(--line); border-radius:6px}
+.rows li+li{border-top:1px solid var(--line)}
+.row{display:flex; width:100%; align-items:center; justify-content:space-between; gap:1rem; text-align:left; background:none; border:0; padding:.9rem 1.1rem; min-height:3.5rem}
+.row:hover{background:var(--pen-soft)}
+.row b{display:block}
+.row small{color:var(--muted); font-size:.92rem}
+.row .go{color:var(--pen); font-weight:600; white-space:nowrap}
+.exam-row .row b{color:var(--pen)}
+.note{color:var(--muted); font-size:.9rem; margin-top:2rem}
+
+/* quiz header */
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap}
+.link{background:none; border:0; color:var(--pen); padding:.4rem 0; text-decoration:underline; text-underline-offset:3px; font-weight:600}
+.badge{display:inline-block; font-size:.85rem; font-weight:600; border:1px solid var(--pen); color:var(--pen); border-radius:4px; padding:.1rem .5rem}
+.progress{height:6px; background:var(--line); border-radius:3px; margin:.6rem 0 0; overflow:hidden}
+.progress>span{display:block; height:100%; background:var(--pen)}
+@media (prefers-reduced-motion:no-preference){.progress>span{transition:width .25s}}
+.meta{margin:1rem 0 0; color:var(--muted)}
+.meta b{color:var(--ink)}
+
+/* question */
+.qcard{background:var(--surface); border:1px solid var(--line); border-left:6px solid var(--pen); border-radius:6px; padding:1.1rem 1.25rem; margin-top:.6rem; display:flex; gap:1rem; align-items:center; min-height:6.5rem; overflow-x:auto}
+.qnum{font-weight:700; color:var(--pen); font-size:1.15rem; min-width:2.2rem}
+.qcard math{font-size:2rem; math-style:normal}
+.opts{display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-top:1rem}
+@media (max-width:34rem){.opts{grid-template-columns:1fr} .qcard math{font-size:1.65rem}}
+.opt{display:flex; align-items:center; gap:.8rem; text-align:left; background:var(--surface); border:2px solid var(--line); border-radius:6px; padding:.6rem .9rem; min-height:4rem; overflow-x:auto}
+.opt:hover:not(:disabled){border-color:var(--pen)}
+.opt .l{flex:none; width:1.9rem; height:1.9rem; border-radius:50%; border:1.5px solid var(--muted); display:grid; place-items:center; font-weight:700; font-size:.95rem}
+.opt math{font-size:1.45rem; math-style:normal}
+.opt.sel{border-color:var(--pen); background:var(--pen-soft)}
+.opt.sel .l{background:var(--pen); border-color:var(--pen); color:var(--surface)}
+.opt.good{border-color:var(--ok); background:var(--ok-bg)}
+.opt.good .l{background:var(--ok); border-color:var(--ok); color:var(--surface)}
+.opt.wrong{border-color:var(--bad); background:var(--bad-bg)}
+.opt.wrong .l{background:var(--bad); border-color:var(--bad); color:var(--surface)}
+.opt .tag{margin-left:auto; font-size:.85rem; font-weight:700; white-space:nowrap}
+.opt.good .tag{color:var(--ok)} .opt.wrong .tag{color:var(--bad)}
+.opt:disabled{cursor:default}
+
+.feedback{margin-top:1rem; border-radius:6px; padding:1rem 1.25rem; border:1px solid}
+.feedback.ok{background:var(--ok-bg); border-color:var(--ok)}
+.feedback.no{background:var(--bad-bg); border-color:var(--bad)}
+.feedback h3{font-size:1.1rem}
+.feedback.ok h3{color:var(--ok)} .feedback.no h3{color:var(--bad)}
+.work{margin:.6rem 0 0; display:flex; flex-wrap:wrap; gap:.4rem 1.2rem; align-items:center}
+.work .lbl{font-weight:600}
+.work math{font-size:1.4rem; math-style:normal}
+
+.actions{display:flex; gap:.7rem; flex-wrap:wrap; margin-top:1.1rem; align-items:center}
+.btn{background:var(--pen); color:var(--surface); border:2px solid var(--pen); border-radius:6px; padding:.65rem 1.2rem; font-weight:700; min-height:2.9rem}
+.btn:hover{filter:brightness(1.08)}
+.btn.sec{background:var(--surface); color:var(--pen)}
+.btn:disabled{opacity:.45; cursor:not-allowed; filter:none}
+
+/* navigator */
+.nav{display:flex; flex-wrap:wrap; gap:.35rem; margin-top:1.1rem}
+.nav button{width:2.4rem; height:2.4rem; border:1.5px solid var(--line); background:var(--surface); border-radius:4px; font-weight:600; font-size:.9rem}
+.nav button.done{background:var(--pen-soft); border-color:var(--pen)}
+.nav button.cur{outline:3px solid var(--pen); outline-offset:1px}
+.confirm{margin-top:1rem; background:var(--warn-bg); color:var(--warn); border:1px solid var(--warn); border-radius:6px; padding:1rem 1.25rem}
+.confirm p{margin:0 0 .6rem; font-weight:600}
+
+/* result */
+.score{display:flex; align-items:baseline; gap:.8rem; flex-wrap:wrap; margin-top:.4rem}
+.score .big{font-size:3rem; font-weight:800; letter-spacing:-.03em; color:var(--pen); line-height:1}
+.score .pct{color:var(--muted); font-size:1.1rem}
+.sections{list-style:none; padding:0; margin:1rem 0 0; display:grid; gap:.5rem}
+.sections li{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:.2rem .8rem; align-items:center}
+.sections .bar{grid-column:1/-1; height:6px; background:var(--line); border-radius:3px; overflow:hidden}
+.sections .bar span{display:block; height:100%; background:var(--pen)}
+.sections .val{font-weight:700}
+.review{list-style:none; padding:0; margin:1rem 0 0}
+.review>li{border-top:1px solid var(--line); padding:.9rem 0}
+.rv-head{display:flex; gap:.7rem; align-items:center; flex-wrap:wrap}
+.rv-head math{font-size:1.4rem; math-style:normal}
+.st{font-size:.85rem; font-weight:700; padding:.05rem .5rem; border-radius:4px; border:1px solid}
+.st.g{color:var(--ok); border-color:var(--ok); background:var(--ok-bg)}
+.st.f{color:var(--bad); border-color:var(--bad); background:var(--bad-bg)}
+.st.n{color:var(--warn); border-color:var(--warn); background:var(--warn-bg)}
+.rv-body{margin-top:.5rem; color:var(--muted)}
+.rv-body math{font-size:1.25rem; math-style:normal; color:var(--ink)}
+.rv-body div{margin:.25rem 0}
+.rv-body b{color:var(--ink)}
+footer{max-width:46rem; margin:0 auto; padding:0 1rem 2rem; color:var(--muted); font-size:.85rem}
+</style>
+</head>
+<body>
+<main id="app" aria-live="polite"></main>
+<footer>Zelfgemaakte oefenopgaven bij de onderwerpen van hoofdstuk 1 van Getal &amp; Ruimte 2 havo/vwo. De opgaven komen niet uit het boek en zijn niet van de uitgever.</footer>
+
+<script>
+const D = {"sections": [{"nr": "1.1", "titel": "Haakjes wegwerken", "opdracht": "Werk de haakjes weg en herleid."}, {"nr": "1.2", "titel": "Breuken optellen", "opdracht": "Schrijf als één breuk."}, {"nr": "1.3", "titel": "Breuken vermenigvuldigen en delen", "opdracht": "Herleid zo ver mogelijk."}, {"nr": "1.4", "titel": "Machten vermenigvuldigen, optellen en aftrekken", "opdracht": "Herleid."}, {"nr": "1.5", "titel": "Machten herleiden", "opdracht": "Herleid."}, {"nr": "1.6", "titel": "De wetenschappelijke notatie", "opdracht": "Bereken en schrijf in wetenschappelijke notatie."}], "toetsen": [[{"q": "4(x+3)", "work": "4·x+4·3", "ans": "4x+12", "wrong": ["4x+3", "x+12", "4x+7"]}, {"q": "-3(2a-5)", "work": "(-3)·2a+(-3)·(-5)", "ans": "-6a+15", "wrong": ["-6a-15", "-6a-5", "6a-15"]}, {"q": "(x+2)(x+5)", "work": "x·x+x·5+2·x+2·5=x^2+5x+2x+10", "ans": "x^2+7x+10", "wrong": ["x^2+10", "x^2+7", "2x+7"]}, {"q": "{1/x}+{2/x}", "work": "{1+2/x}", "ans": "{3/x}", "wrong": ["{3/2x}", "{2/x}", "{3/x^2}"]}, {"q": "{a/3}+{a/5}", "work": "{5a/15}+{3a/15}", "ans": "{8a/15}", "wrong": ["{2a/8}", "{a^2/15}", "{2a/15}"]}, {"q": "{2/a}+{3/b}", "work": "{2b/ab}+{3a/ab}", "ans": "{2b+3a/ab}", "wrong": ["{5/a+b}", "{5/ab}", "{2a+3b/ab}"]}, {"q": "{a/b}·{b/c}", "work": "{a·b/b·c}", "ans": "{a/c}", "wrong": ["{a/b}", "{c/a}", "{ac/b^2}"]}, {"q": "{3/x}·{x^2/6}", "work": "{3x^2/6x}", "ans": "{x/2}", "wrong": ["{x^2/2}", "{2/x}", "{x/3}"]}, {"q": "{6/a}:{3/a^2}", "work": "{6/a}·{a^2/3}={6a^2/3a}", "ans": "2a", "wrong": ["{18/a^3}", "{2/a}", "{a/2}"]}, {"q": "a^3·a^5", "work": "a^{3+5}", "ans": "a^8", "wrong": ["a^15", "a^2", "2a^8"]}, {"q": "3a^2·4a^4", "work": "3·4·a^{2+4}", "ans": "12a^6", "wrong": ["12a^8", "7a^6", "7a^8"]}, {"q": "7b^3-2b^3+b^3", "work": "(7-2+1)b^3", "ans": "6b^3", "wrong": ["4b^3", "5b^3", "6b"]}, {"q": "(a^3)^4", "work": "a^{3·4}", "ans": "a^12", "wrong": ["a^7", "a^81", "3a^4"]}, {"q": "(2a^2)^3", "work": "2^3·(a^2)^3", "ans": "8a^6", "wrong": ["2a^6", "6a^6", "8a^5"]}, {"q": "a^7:a^3", "work": "a^{7-3}", "ans": "a^4", "wrong": ["a^10", "a^21", "a^3"]}, {"q": "45.000", "work": "45.000=4,5·10.000", "ans": "4,5·10^4", "wrong": ["4,5·10^5", "45·10^3", "4,5·10^3"]}, {"q": "0,00032", "work": "0,00032=3,2·0,0001", "ans": "3,2·10^-4", "wrong": ["3,2·10^4", "3,2·10^-5", "32·10^-5"]}, {"q": "(2·10^3)·(3·10^5)", "work": "2·3·10^{3+5}", "ans": "6·10^8", "wrong": ["6·10^15", "5·10^8", "6·10^7"]}], [{"q": "5(a+2)", "work": "5·a+5·2", "ans": "5a+10", "wrong": ["5a+2", "a+10", "5a+7"]}, {"q": "-4(x-3)", "work": "(-4)·x+(-4)·(-3)", "ans": "-4x+12", "wrong": ["-4x-12", "-4x-3", "4x-12"]}, {"q": "(a+3)(a-4)", "work": "a·a+a·(-4)+3·a+3·(-4)=a^2-4a+3a-12", "ans": "a^2-a-12", "wrong": ["a^2-12", "a^2+a-12", "a^2-7a-12"]}, {"q": "{3/a}-{1/a}", "work": "{3-1/a}", "ans": "{2/a}", "wrong": ["{4/a}", "{2/a^2}", "{1/a}"]}, {"q": "{x/2}+{x/6}", "work": "{3x/6}+{x/6}={4x/6}", "ans": "{2x/3}", "wrong": ["{2x/8}", "{x^2/12}", "{x/3}"]}, {"q": "{1/a}+{1/b}", "work": "{b/ab}+{a/ab}", "ans": "{a+b/ab}", "wrong": ["{2/a+b}", "{1/ab}", "{2/ab}"]}, {"q": "{x/y}·{y^2/x}", "work": "{x·y^2/y·x}", "ans": "y", "wrong": ["{1/y}", "y^2", "{x^2/y}"]}, {"q": "{4a/5}·{10/a^2}", "work": "{40a/5a^2}", "ans": "{8/a}", "wrong": ["{8/a^2}", "{40/a}", "8a"]}, {"q": "{2/x}:{6/x^2}", "work": "{2/x}·{x^2/6}={2x^2/6x}", "ans": "{x/3}", "wrong": ["{12/x^3}", "{3/x}", "3x"]}, {"q": "b^4·b^6", "work": "b^{4+6}", "ans": "b^10", "wrong": ["b^24", "b^2", "b^20"]}, {"q": "5x^3·2x^2", "work": "5·2·x^{3+2}", "ans": "10x^5", "wrong": ["10x^6", "7x^5", "7x^6"]}, {"q": "9a^2-4a^2+a^2", "work": "(9-4+1)a^2", "ans": "6a^2", "wrong": ["4a^2", "5a^2", "6a^4"]}, {"q": "(b^2)^5", "work": "b^{2·5}", "ans": "b^10", "wrong": ["b^7", "b^25", "5b^2"]}, {"q": "(3x^3)^2", "work": "3^2·(x^3)^2", "ans": "9x^6", "wrong": ["3x^6", "9x^5", "6x^6"]}, {"q": "a^9:a^6", "work": "a^{9-6}", "ans": "a^3", "wrong": ["a^15", "a^54", "a^2"]}, {"q": "380.000", "work": "380.000=3,8·100.000", "ans": "3,8·10^5", "wrong": ["3,8·10^6", "38·10^4", "3,8·10^4"]}, {"q": "0,0007", "work": "0,0007=7·0,0001", "ans": "7·10^-4", "wrong": ["7·10^4", "7·10^-3", "0,7·10^-3"]}, {"q": "(5·10^4)·(2·10^3)", "work": "5·2·10^{4+3}=10·10^7", "ans": "1·10^8", "wrong": ["10·10^7", "1·10^7", "7·10^7"]}], [{"q": "2(3x+7)", "work": "2·3x+2·7", "ans": "6x+14", "wrong": ["6x+7", "3x+14", "5x+9"]}, {"q": "-5(2-a)", "work": "(-5)·2+(-5)·(-a)", "ans": "5a-10", "wrong": ["-10-5a", "10-5a", "5a+10"]}, {"q": "(2x+1)(x+3)", "work": "2x·x+2x·3+1·x+1·3=2x^2+6x+x+3", "ans": "2x^2+7x+3", "wrong": ["2x^2+3", "2x^2+6x+3", "2x^2+x+3"]}, {"q": "{5/x}+{3/x}", "work": "{5+3/x}", "ans": "{8/x}", "wrong": ["{8/2x}", "{8/x^2}", "{15/x}"]}, {"q": "{a/4}-{a/6}", "work": "{3a/12}-{2a/12}", "ans": "{a/12}", "wrong": ["0", "{a/2}", "{a/24}"]}, {"q": "{3/a}+{2/b}", "work": "{3b/ab}+{2a/ab}", "ans": "{3b+2a/ab}", "wrong": ["{5/a+b}", "{5/ab}", "{3a+2b/ab}"]}, {"q": "{a/c}·{c^2/b}", "work": "{a·c^2/c·b}", "ans": "{ac/b}", "wrong": ["{a/b}", "{a/bc}", "{ac^2/b}"]}, {"q": "{9x/2}·{4/3x}", "work": "{36x/6x}", "ans": "6", "wrong": ["6x", "{6/x}", "{3/2}"]}, {"q": "{8/a}:{4/a^3}", "work": "{8/a}·{a^3/4}={8a^3/4a}", "ans": "2a^2", "wrong": ["{2/a^2}", "{32/a^4}", "{a^2/2}"]}, {"q": "a^2·a^7", "work": "a^{2+7}", "ans": "a^9", "wrong": ["a^14", "a^5", "2a^9"]}, {"q": "4b^5·3b", "work": "4·3·b^{5+1}", "ans": "12b^6", "wrong": ["12b^5", "7b^6", "12b^4"]}, {"q": "6y^4-y^4+2y^4", "work": "(6-1+2)y^4", "ans": "7y^4", "wrong": ["3y^4", "5y^4", "7y^8"]}, {"q": "(a^4)^3", "work": "a^{4·3}", "ans": "a^12", "wrong": ["a^7", "a^64", "4a^3"]}, {"q": "(5b)^2·b^3", "work": "5^2·b^2·b^3", "ans": "25b^5", "wrong": ["5b^5", "25b^6", "10b^5"]}, {"q": "b^8:b^5", "work": "b^{8-5}", "ans": "b^3", "wrong": ["b^13", "b^40", "b^5"]}, {"q": "72.000", "work": "72.000=7,2·10.000", "ans": "7,2·10^4", "wrong": ["7,2·10^5", "72·10^3", "7,2·10^3"]}, {"q": "0,0051", "work": "0,0051=5,1·0,001", "ans": "5,1·10^-3", "wrong": ["5,1·10^3", "5,1·10^-2", "51·10^-4"]}, {"q": "(6·10^5):(3·10^2)", "work": "{6/3}·10^{5-2}", "ans": "2·10^3", "wrong": ["2·10^7", "3·10^3", "2·10^2"]}], [{"q": "6(2a+1)", "work": "6·2a+6·1", "ans": "12a+6", "wrong": ["12a+1", "8a+7", "2a+6"]}, {"q": "-2(x-7)", "work": "(-2)·x+(-2)·(-7)", "ans": "-2x+14", "wrong": ["-2x-14", "-2x-7", "2x-14"]}, {"q": "(a-2)(a+6)", "work": "a·a+a·6-2·a-2·6=a^2+6a-2a-12", "ans": "a^2+4a-12", "wrong": ["a^2-12", "a^2+8a-12", "a^2+4a+12"]}, {"q": "{4/b}+{5/b}", "work": "{4+5/b}", "ans": "{9/b}", "wrong": ["{9/2b}", "{9/b^2}", "{20/b}"]}, {"q": "{x/5}+{x/2}", "work": "{2x/10}+{5x/10}", "ans": "{7x/10}", "wrong": ["{2x/7}", "{x^2/10}", "{x/10}"]}, {"q": "{2/x}-{1/y}", "work": "{2y/xy}-{x/xy}", "ans": "{2y-x/xy}", "wrong": ["{1/x-y}", "{1/xy}", "{2x-y/xy}"]}, {"q": "{3a/b}·{b^2/9}", "work": "{3a·b^2/9·b}", "ans": "{ab/3}", "wrong": ["{a/3}", "{ab^2/3}", "{a/3b}"]}, {"q": "{6/5x}·{10x/3}", "work": "{60x/15x}", "ans": "4", "wrong": ["{4/x}", "4x", "{2/x}"]}, {"q": "{3/a^2}:{9/a}", "work": "{3/a^2}·{a/9}={3a/9a^2}", "ans": "{1/3a}", "wrong": ["{27/a^3}", "{1/3a^2}", "{3/a}"]}, {"q": "x^5·x^4", "work": "x^{5+4}", "ans": "x^9", "wrong": ["x^20", "x", "2x^9"]}, {"q": "2a^3·6a^3", "work": "2·6·a^{3+3}", "ans": "12a^6", "wrong": ["12a^9", "8a^6", "12a^3"]}, {"q": "8c^2+3c^2-c^2", "work": "(8+3-1)c^2", "ans": "10c^2", "wrong": ["12c^2", "11c^2", "10c^4"]}, {"q": "(x^3)^3", "work": "x^{3·3}", "ans": "x^9", "wrong": ["x^6", "x^27", "3x^3"]}, {"q": "(4a^3)^2", "work": "4^2·(a^3)^2", "ans": "16a^6", "wrong": ["4a^6", "16a^5", "8a^6"]}, {"q": "x^10:x^4", "work": "x^{10-4}", "ans": "x^6", "wrong": ["x^14", "x^40", "x^4"]}, {"q": "6200", "work": "6200=6,2·1000", "ans": "6,2·10^3", "wrong": ["6,2·10^4", "62·10^2", "6,2·10^2"]}, {"q": "0,000084", "work": "0,000084=8,4·0,00001", "ans": "8,4·10^-5", "wrong": ["8,4·10^5", "8,4·10^-4", "84·10^-6"]}, {"q": "(4·10^-3)·(5·10^6)", "work": "4·5·10^{-3+6}=20·10^3", "ans": "2·10^4", "wrong": ["20·10^3", "2·10^3", "2·10^9"]}], [{"q": "7(b+2)", "work": "7·b+7·2", "ans": "7b+14", "wrong": ["7b+2", "b+14", "7b+9"]}, {"q": "-6(2-3x)", "work": "(-6)·2+(-6)·(-3x)", "ans": "18x-12", "wrong": ["-12-18x", "12-18x", "-12+3x"]}, {"q": "(3a+2)(a-1)", "work": "3a·a+3a·(-1)+2·a+2·(-1)=3a^2-3a+2a-2", "ans": "3a^2-a-2", "wrong": ["3a^2-2", "3a^2-5a-2", "3a^2+a-2"]}, {"q": "{7/y}-{2/y}", "work": "{7-2/y}", "ans": "{5/y}", "wrong": ["{9/y}", "{5/y^2}", "{14/y}"]}, {"q": "{a/3}+{a/4}", "work": "{4a/12}+{3a/12}", "ans": "{7a/12}", "wrong": ["{2a/7}", "{a^2/12}", "{2a/12}"]}, {"q": "{5/a}-{2/b}", "work": "{5b/ab}-{2a/ab}", "ans": "{5b-2a/ab}", "wrong": ["{3/a-b}", "{3/ab}", "{5a-2b/ab}"]}, {"q": "{x^2/y}·{y/x}", "work": "{x^2·y/y·x}", "ans": "x", "wrong": ["{1/x}", "x^2", "{x/y}"]}, {"q": "{12/a}·{a^2/8}", "work": "{12a^2/8a}", "ans": "{3a/2}", "wrong": ["{3a^2/2}", "{3/2a}", "{3/2}"]}, {"q": "{5/b}:{10/b^2}", "work": "{5/b}·{b^2/10}={5b^2/10b}", "ans": "{b/2}", "wrong": ["{50/b^3}", "{1/2b}", "{2/b}"]}, {"q": "y^6·y^3", "work": "y^{6+3}", "ans": "y^9", "wrong": ["y^18", "y^3", "3y^6"]}, {"q": "7a·2a^4", "work": "7·2·a^{1+4}", "ans": "14a^5", "wrong": ["14a^4", "9a^5", "9a^4"]}, {"q": "5p^3+p^3-2p^3", "work": "(5+1-2)p^3", "ans": "4p^3", "wrong": ["6p^3", "8p^3", "4p^6"]}, {"q": "(y^2)^6", "work": "y^{2·6}", "ans": "y^12", "wrong": ["y^8", "y^64", "6y^2"]}, {"q": "(2b^4)^3", "work": "2^3·(b^4)^3", "ans": "8b^12", "wrong": ["2b^12", "6b^12", "8b^7"]}, {"q": "a^12:a^9", "work": "a^{12-9}", "ans": "a^3", "wrong": ["a^21", "a^108", "a^4"]}, {"q": "91.000", "work": "91.000=9,1·10.000", "ans": "9,1·10^4", "wrong": ["9,1·10^5", "91·10^3", "9,1·10^3"]}, {"q": "0,0206", "work": "0,0206=2,06·0,01", "ans": "2,06·10^-2", "wrong": ["2,06·10^2", "2,06·10^-3", "20,6·10^-3"]}, {"q": "(9·10^8):(3·10^3)", "work": "{9/3}·10^{8-3}", "ans": "3·10^5", "wrong": ["3·10^11", "6·10^5", "3·10^3"]}]]};
+const TOETS_NAMEN = ['Oefentoets 1','Oefentoets 2','Oefentoets 3','Oefentoets 4','Eindtoets'];
+const LETTERS = ['A','B','C','D'];
+
+/* ---------- tekst -> MathML ---------- */
+function parseMath(input){
+  const s = input.replace(/\s+/g,''); let i = 0;
+  function seq(stops){
+    const atoms = [];
+    while(i < s.length && !stops.includes(s[i])){
+      const ch = s[i];
+      if(ch === '{'){
+        i++; const n = seq('/'); i++; const d = seq('}'); i++;
+        atoms.push([`<mfrac><mrow>${n.join('')}</mrow><mrow>${d.join('')}</mrow></mfrac>`]);
+      } else if(ch === '('){
+        i++; const inner = seq(')'); i++;
+        atoms.push(['<mo>(</mo>', ...inner, '<mo>)</mo>']);
+      } else if(/[0-9]/.test(ch)){
+        const m = s.slice(i).match(/^[0-9]+(?:\.[0-9]{3})*(?:,[0-9]+)?/);
+        atoms.push([`<mn>${m[0].replace(/\./g,'\u00A0')}</mn>`]); i += m[0].length;
+      } else if(ch === '^'){
+        i++; const base = atoms.pop(); let exp;
+        if(s[i] === '{'){ i++; exp = seq('}'); i++; }
+        else {
+          const m = s.slice(i).match(/^-?[0-9]+|^[a-z]/);
+          exp = m[0].startsWith('-') ? ['<mo>\u2212</mo>', `<mn>${m[0].slice(1)}</mn>`]
+              : /[0-9]/.test(m[0][0]) ? [`<mn>${m[0]}</mn>`] : [`<mi>${m[0]}</mi>`];
+          i += m[0].length;
+        }
+        atoms.push([`<msup><mrow>${base.join('')}</mrow><mrow>${exp.join('')}</mrow></msup>`]);
+      } else if(ch === '-'){ atoms.push(['<mo>\u2212</mo>']); i++; }
+      else if('+=\u00B7:'.includes(ch)){ atoms.push([`<mo>${ch}</mo>`]); i++; }
+      else if(/[a-z]/i.test(ch)){ atoms.push([`<mi>${ch}</mi>`]); i++; }
+      else { atoms.push([`<mo>${ch}</mo>`]); i++; }
+    }
+    return atoms.flat();
+  }
+  return seq('').join('');
+}
+const M = (str) => `<math display="inline">${parseMath(str)}</math>`;
+/* tekstversie voor schermlezers */
+function plain(str){
+  return str.replace(/\{([^{}/]*)\/([^{}/]*)\}/g,'($1) gedeeld door ($2)')
+    .replace(/\^\{([^{}]*)\}/g,' tot de macht ($1)').replace(/\^(-?[0-9a-z]+)/g,' tot de macht $1')
+    .replace(/\u00B7/g,' keer ').replace(/:/g,' gedeeld door ').replace(/-/g,' min ').replace(/\+/g,' plus ');
+}
+const MA = (str) => `<span role="img" aria-label="${plain(str)}">${M(str)}</span>`;
+
+/* ---------- hulp ---------- */
+function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; }
+const $app = document.getElementById('app');
+let S = null;
+
+function startQuiz(idx){
+  const mode = idx === 4 ? 'toets' : 'oefen';
+  const items = D.toetsen[idx].map((it,n) => ({
+    ...it, n, sec: Math.floor(n/3), opts: [it.ans, ...it.wrong], order: shuffle([0,1,2,3]), choice: null
+  }));
+  S = {idx, mode, items, cur: 0, view: 'quiz', confirming: false};
+  render(true);
+}
+function answered(){ return S.items.filter(x => x.choice !== null).length; }
+function correct(it){ return it.choice === 0; }
+
+/* ---------- schermen ---------- */
+function renderMenu(){
+  const rows = [0,1,2,3].map(i => `
+    <li><button class="row" data-act="start" data-i="${i}">
+      <span><b>${TOETS_NAMEN[i]}</b><small>18 vragen. Na elke vraag zie je direct de uitwerking.</small></span>
+      <span class="go">Start</span></button></li>`).join('');
+  return `
+    <h1 id="focus" tabindex="-1">Rekenen met letters</h1>
+    <p class="lede">Getal &amp; Ruimte 2 havo/vwo, hoofdstuk 1. Kies bij elke vraag het juiste antwoord.</p>
+    <h2 class="group-title">Oefenen</h2>
+    <ul class="rows">${rows}</ul>
+    <h2 class="group-title">Eindtoets</h2>
+    <ul class="rows exam-row"><li><button class="row" data-act="start" data-i="4">
+      <span><b>${TOETS_NAMEN[4]}</b><small>18 vragen. Je ziet pas na het inleveren je score en de uitwerkingen.</small></span>
+      <span class="go">Start</span></button></li></ul>
+    <p class="note">De volgorde van de antwoorden verandert bij elke poging.</p>`;
+}
+
+function topbar(){
+  const total = S.items.length;
+  const pos = S.cur + 1;
+  return `
+    <div class="topbar">
+      <button class="link" data-act="menu">Terug naar menu</button>
+      <span class="badge">${S.mode === 'toets' ? 'Eindtoets' : 'Oefenen'}</span>
+    </div>
+    <h1 style="font-size:1.5rem;margin-top:.6rem">${TOETS_NAMEN[S.idx]}</h1>
+    <div class="progress" role="progressbar" aria-valuemin="1" aria-valuemax="${total}" aria-valuenow="${pos}" aria-label="Voortgang"><span style="width:${(pos/total)*100}%"></span></div>`;
+}
+
+function renderQuiz(){
+  const it = S.items[S.cur];
+  const sec = D.sections[it.sec];
+  const locked = S.mode === 'oefen' && it.choice !== null;
+  const opts = it.order.map((oi,pos) => {
+    let cls = 'opt', tag = '';
+    if(S.mode === 'oefen' && it.choice !== null){
+      if(oi === 0){ cls += ' good'; tag = '<span class="tag">Juist antwoord</span>'; }
+      else if(oi === it.choice){ cls += ' wrong'; tag = '<span class="tag">Jouw keuze</span>'; }
+    } else if(it.choice === oi){ cls += ' sel'; tag = '<span class="tag">Gekozen</span>'; }
+    return `<button class="${cls}" data-act="pick" data-o="${oi}" ${locked?'disabled':''}
+      aria-pressed="${it.choice === oi}">
+      <span class="l" aria-hidden="true">${LETTERS[pos]}</span><span class="sr">Antwoord ${LETTERS[pos]}: </span>${MA(it.opts[oi])}${tag}</button>`;
+  }).join('');
+
+  let feedback = '';
+  if(locked){
+    const ok = correct(it);
+    feedback = `<div class="feedback ${ok?'ok':'no'}" role="status">
+      <h3>${ok ? 'Goed gedaan.' : 'Niet juist.'}</h3>
+      <div class="work"><span class="lbl">Uitwerking</span>${M(it.work)}</div>
+      <div class="work"><span class="lbl">Antwoord</span>${M(it.ans)}</div></div>`;
+  }
+
+  let actions = '', nav = '', confirm = '';
+  const last = S.cur === S.items.length - 1;
+  if(S.mode === 'oefen'){
+    actions = `<div class="actions"><button class="btn" data-act="next" ${it.choice===null?'disabled':''}>${last?'Bekijk resultaat':'Volgende vraag'}</button></div>`;
+  } else {
+    nav = `<div class="nav" role="group" aria-label="Ga naar vraag">${S.items.map((x,n) =>
+      `<button data-act="goto" data-n="${n}" class="${x.choice!==null?'done':''} ${n===S.cur?'cur':''}"
+        aria-label="Vraag ${n+1}${x.choice!==null?', beantwoord':', nog niet beantwoord'}" ${n===S.cur?'aria-current="true"':''}>${n+1}</button>`).join('')}</div>`;
+    actions = `<div class="actions">
+      <button class="btn sec" data-act="prev" ${S.cur===0?'disabled':''}>Vorige</button>
+      <button class="btn sec" data-act="next" ${last?'disabled':''}>Volgende</button>
+      <button class="btn" data-act="submit">Inleveren</button>
+      <span class="lede" style="margin:0">${answered()} van ${S.items.length} beantwoord</span></div>`;
+    if(S.confirming){
+      const open = S.items.length - answered();
+      confirm = `<div class="confirm" role="alertdialog" aria-labelledby="cf">
+        <p id="cf">Je hebt ${open} ${open===1?'vraag':'vragen'} niet beantwoord. Onbeantwoorde vragen tellen als fout.</p>
+        <div class="actions" style="margin-top:0"><button class="btn" data-act="submit-final">Toch inleveren</button>
+        <button class="btn sec" data-act="cancel">Verder werken</button></div></div>`;
+    }
+  }
+
+  return `${topbar()}
+    <p class="meta">Vraag ${S.cur+1} van ${S.items.length}. <b>${sec.nr} ${sec.titel}.</b> ${sec.opdracht}</p>
+    <div class="qcard"><span class="qnum">${S.cur+1}.</span>${MA(it.q)}</div>
+    <div class="opts" role="group" aria-label="Antwoordopties">${opts}</div>
+    ${feedback}${actions}${nav}${confirm}`;
+}
+
+function renderResult(){
+  const total = S.items.length;
+  const score = S.items.filter(correct).length;
+  const pct = Math.round(score/total*100);
+  const secs = D.sections.map((sec,si) => {
+    const sub = S.items.filter(x => x.sec === si);
+    const g = sub.filter(correct).length;
+    return `<li><span><b>${sec.nr}</b> ${sec.titel}</span><span class="val">${g} van ${sub.length}</span>
+      <span class="bar" aria-hidden="true"><span style="width:${g/sub.length*100}%"></span></span></li>`;
+  }).join('');
+  const review = S.items.map(it => {
+    const st = it.choice === null ? ['n','Niet beantwoord'] : correct(it) ? ['g','Goed'] : ['f','Fout'];
+    const mine = it.choice === null ? '<i>geen antwoord gekozen</i>' : MA(it.opts[it.choice]);
+    return `<li><div class="rv-head"><b>${it.n+1}.</b>${MA(it.q)}<span class="st ${st[0]}">${st[1]}</span></div>
+      <div class="rv-body">
+        ${correct(it) ? '' : `<div><b>Jouw antwoord:</b> ${mine}</div>`}
+        <div><b>Juiste antwoord:</b> ${MA(it.ans)}</div>
+        <div><b>Uitwerking:</b> ${M(it.work)}</div></div></li>`;
+  }).join('');
+  return `
+    <div class="topbar"><button class="link" data-act="menu">Terug naar menu</button>
+      <span class="badge">${S.mode === 'toets' ? 'Eindtoets' : 'Oefenen'}</span></div>
+    <h1 id="focus" tabindex="-1" style="font-size:1.5rem;margin-top:.6rem">Resultaat ${TOETS_NAMEN[S.idx]}</h1>
+    <div class="sheet">
+      <div class="score"><span class="big">${score} van ${total}</span><span class="pct">${pct}% goed</span></div>
+      <h2 style="margin-top:1.4rem;font-size:1.1rem">Score per onderdeel</h2>
+      <ul class="sections">${secs}</ul>
+      <div class="actions"><button class="btn" data-act="retry">Opnieuw proberen</button>
+        <button class="btn sec" data-act="menu">Kies een andere toets</button></div>
+    </div>
+    <div class="sheet"><h2 style="font-size:1.1rem">Alle vragen met uitwerking</h2><ul class="review">${review}</ul></div>`;
+}
+
+function render(focusTop){
+  $app.innerHTML = !S ? renderMenu() : S.view === 'result' ? renderResult() : renderQuiz();
+  if(focusTop){
+    const f = document.getElementById('focus') || $app.querySelector('h1');
+    if(f){ f.setAttribute('tabindex','-1'); f.focus({preventScroll:true}); }
+    window.scrollTo({top:0});
+  }
+}
+
+/* ---------- acties ---------- */
+function pick(oi){
+  const it = S.items[S.cur];
+  if(S.mode === 'oefen' && it.choice !== null) return;
+  it.choice = oi; S.confirming = false; render();
+  const nextBtn = $app.querySelector('[data-act="next"]');
+  if(S.mode === 'oefen'){ const fb = $app.querySelector('.feedback'); if(fb) fb.scrollIntoView({block:'nearest'}); }
+}
+function finish(){ S.view = 'result'; S.confirming = false; render(true); }
+function go(n){ S.cur = n; S.confirming = false; render(true); }
+
+$app.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if(!b || b.disabled) return;
+  const a = b.dataset.act;
+  if(a === 'start') startQuiz(+b.dataset.i);
+  else if(a === 'menu'){ S = null; render(true); }
+  else if(a === 'pick') pick(+b.dataset.o);
+  else if(a === 'next'){
+    if(S.mode === 'oefen' && S.cur === S.items.length-1) finish();
+    else if(S.cur < S.items.length-1) go(S.cur+1);
+  }
+  else if(a === 'prev'){ if(S.cur > 0) go(S.cur-1); }
+  else if(a === 'goto') go(+b.dataset.n);
+  else if(a === 'submit'){
+    if(answered() < S.items.length){ S.confirming = true; render(); const c = $app.querySelector('.confirm'); if(c) c.scrollIntoView({block:'nearest'}); }
+    else finish();
+  }
+  else if(a === 'submit-final') finish();
+  else if(a === 'cancel'){ S.confirming = false; render(); }
+  else if(a === 'retry') startQuiz(S.idx);
+});
+
+document.addEventListener('keydown', e => {
+  if(!S || S.view !== 'quiz' || e.ctrlKey || e.metaKey || e.altKey) return;
+  const k = e.key.toLowerCase(); const it = S.items[S.cur];
+  const p = 'abcd'.indexOf(k) >= 0 ? 'abcd'.indexOf(k) : '1234'.indexOf(k);
+  if(p >= 0 && p < 4 && !(e.target.closest && e.target.closest('input,textarea'))){ pick(it.order[p]); }
+  else if(S.mode === 'toets' && k === 'arrowright' && S.cur < S.items.length-1) go(S.cur+1);
+  else if(S.mode === 'toets' && k === 'arrowleft' && S.cur > 0) go(S.cur-1);
+});
+
+render(false);
+</script>
+</body>
+</html>
